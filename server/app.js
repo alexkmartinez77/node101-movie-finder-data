@@ -15,17 +15,18 @@ app.use(bodyParser.json());
 
 app.get('/', function(req, res){
 
-  res.status(200).send(movies[req.query.i]);
+  //res.status(200).send(movies[req.query.i]);
 
   if (movies[req.query.i]){
-    return;
+    res.status(200).send(movies[req.query.i]);
   } else {
   axios({
     method: 'get',
     url: `http://www.omdbapi.com/?i=${req.query.i}&apikey=${process.env.API_KEY}`,
   })
-    .then(res => {
-      movies[req.query.i] = res.data;
+    .then(movie => {
+      movies[req.query.i] = movie.data;
+      res.status(200).send(movie.data);
     });
   }
 })
