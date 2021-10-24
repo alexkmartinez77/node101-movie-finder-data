@@ -7,37 +7,44 @@ require('dotenv').config();
 
 //creating app server
 var app = express();
-var movies = {};
+var movies = [];
 //middleware
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-
 app.get('/', function(req, res){
-  //Query by movie ID
-  if("i" in req.query){
-    if (movies[req.query.i]){
-      res.status(200).send(movies[req.query.i]);
+  console.log(movies);
+  // Returns false if not found and returns the actual movie object if found
+  const findMovie = (key, value) => {
+    let found = false;
+    movies.forEach(movie => {
+      if (movie[key].toLowerCase() == value.toLowerCase()) 
+        found = movie;
+    })
+    return found;
+  }
+  //Makes a call to axios with key/value pair provided by user
+  const axiosCall = (foundMovie, key, value) => {
+    if(foundMovie){
+      res.status(200).send(foundMovie);
     } else {
-    axios({method: 'get', url: `http://www.omdbapi.com/?i=${req.query.i}&apikey=${process.env.API_KEY}`,})
-    .then(movie => {movies[req.query.i] = movie.data; res.status(200).send(movie.data);})
-    .catch((e) => {console.log(e.message); res.send('OMDB Error.')});
+      axios({method: 'get', url: `http://www.omdbapi.com/?${key}=${value}&apikey=${process.env.API_KEY}`,})
+      .then(movie => {movies.push(movie.data); res.status(200).send(movie.data)})
+      .catch((e) => {console.log(e.message); res.send('OMDB Error.')});
     }
   }
-  //Query by Movie Name
-   else if("t" in req.query){
-    if (movies[req.query.t]){
-      res.status(200).send(movies[req.query.t]);
-    } else {
-    axios({method: 'get', url: `http://www.omdbapi.com/?i=${req.query.t}&apikey=${process.env.API_KEY}`,})
-    .then(movie => {movies[req.query.i] = movie.data; res.status(200).send(movie.data);})
-    .catch((e) => {console.log(e.message); res.send('OMDB Error.')});
-    }
+  //Query by movie ID
+  if("i" in req.query){
+    let iMovie = findMovie('imdbID', req.query.i);
+    axiosCall(iMovie, 'i', req.query.i);
+  }
+  //Query by movie Name
+  else if("t" in req.query){
+    let tMovie = findMovie('imdbID', req.query.t);
+    axiosCall(tMovie, 't', req.query.t);
   }
   //If Key/Value info is correctly entered.
   else{res.send('Cannot process as entered.')}
 })
-
-// When making calls to the OMDB API make sure to append the '&apikey=8730e0e' parameter
 
 module.exports = app;
