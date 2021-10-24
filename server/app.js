@@ -8,10 +8,12 @@ require('dotenv').config();
 //creating app server
 var app = express();
 var movies = [];
+
 //middleware
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
+//routes
 app.get('/', function(req, res){
   console.log(movies);
   // Returns false if not found and returns the actual movie object if found
@@ -23,6 +25,7 @@ app.get('/', function(req, res){
     })
     return found;
   }
+
   //Makes a call to axios with key/value pair provided by user
   const axiosCall = (foundMovie, key, value) => {
     if(foundMovie){
@@ -33,16 +36,19 @@ app.get('/', function(req, res){
       .catch((e) => {console.log(e.message); res.send('OMDB Error.')});
     }
   }
+
   //Query by movie ID
   if("i" in req.query){
     let iMovie = findMovie('imdbID', req.query.i);
     axiosCall(iMovie, 'i', req.query.i);
   }
+
   //Query by movie Name
   else if("t" in req.query){
-    let tMovie = findMovie('imdbID', req.query.t);
+    let tMovie = findMovie('Title', req.query.t);
     axiosCall(tMovie, 't', req.query.t);
   }
+
   //If Key/Value info is correctly entered.
   else{res.send('Cannot process as entered.')}
 })
