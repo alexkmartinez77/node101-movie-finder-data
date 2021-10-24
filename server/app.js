@@ -46,7 +46,6 @@ app.get('/', function(req, res){
   let movie = findMovie(movieKeys[x], req.query[x]);
   //If false returned then make axios call and push movie into movie array
   axiosCall(movie, x, req.query[x]);
-
 })
 
 module.exports = app;
