@@ -8,6 +8,10 @@ require('dotenv').config();
 //creating app server
 var app = express();
 var movies = [];
+var movieKeys = {
+  i: 'imdbID',
+  t: 'Title'
+}
 
 //middleware
 app.use(morgan('dev'));
@@ -15,7 +19,6 @@ app.use(bodyParser.json());
 
 //routes
 app.get('/', function(req, res){
-  console.log(movies);
   // Returns false if not found and returns the actual movie object if found
   const findMovie = (key, value) => {
     let found = false;
@@ -37,20 +40,13 @@ app.get('/', function(req, res){
     }
   }
 
-  //Query by movie ID
-  if("i" in req.query){
-    let iMovie = findMovie('imdbID', req.query.i);
-    axiosCall(iMovie, 'i', req.query.i);
-  }
+  // Assign incoming key to variable x
+  let x = (Object.keys(req.query)[0]);
+  //Look for movie in movies array and return movie or boolean false
+  let movie = findMovie(movieKeys[x], req.query[x]);
+  //If false returned then make axios call and push movie into movie array
+  axiosCall(movie, x, req.query[x]);
 
-  //Query by movie Name
-  else if("t" in req.query){
-    let tMovie = findMovie('Title', req.query.t);
-    axiosCall(tMovie, 't', req.query.t);
-  }
-
-  //If Key/Value info is correctly entered.
-  else{res.send('Cannot process as entered.')}
 })
 
 module.exports = app;
