@@ -22,7 +22,9 @@ app.get('/', function(req, res){
   // Returns false if not found and returns the actual movie object if found
   const findMovie = (key, value) => {
     let found = false;
+    //console.log('movies', movies,'key',key, 'value', value);
     movies.forEach(movie => {
+      console.log('movie[key]', movie[key], 'value', value);
       if (movie[key].toLowerCase() == value.toLowerCase()) 
         found = movie;
     })
